@@ -140,6 +140,14 @@ class ActionRuleLedgerTests(unittest.TestCase):
             root = Path(directory)
             kb = root / 'source.learnkb'
             shutil.copytree(self.kb, kb)
+            # This test targets action-rule delivery. PDF heading-index gating is
+            # covered separately in test_heading_index.py, so keep this fixture
+            # focused by treating its copied source as a generic document.
+            manifest_path = kb / 'source_manifest.json'
+            manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+            for source in manifest['sources']:
+                source['format'] = 'document'
+            manifest_path.write_text(json.dumps(manifest, ensure_ascii=False), encoding='utf-8')
             (kb / 'action-rule-ledger.json').write_text(json.dumps(self.ledger(), ensure_ascii=False), encoding='utf-8')
             result = finalize(ROOT / 'examples/overview-whole-methodology.json', kb, root / 'out', 'new')
             manifest = json.loads(Path(result['manifest']).read_text(encoding='utf-8'))
